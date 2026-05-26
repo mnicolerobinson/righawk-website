@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RigHawkAI — Your AI Dispatcher. Always On.</title>
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0A0E17;
+    --card: #111827;
+    --cardAlt: #161D2E;
+    --accent: #F59E0B;
+    --accentDim: #B45309;
+    --accentLight: #FCD34D;
+    --accentBg: rgba(245,158,11,0.1);
+    --accentBorder: rgba(245,158,11,0.25);
+    --green: #10B981;
+    --greenBg: rgba(16,185,129,0.1);
+    --greenBorder: rgba(16,185,129,0.25);
+    --red: #EF4444;
+    --redBg: rgba(239,68,68,0.1);
+    --blue: #3B82F6;
+    --blueBg: rgba(59,130,246,0.1);
+    --text: #F9FAFB;
+    --muted: #9CA3AF;
+    --dim: #6B7280;
+    --border: #1F2937;
+    --borderLight: #374151;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* ── Utility ── */
+  .accent { color: var(--accent); }
+  .green  { color: var(--green); }
+  .muted  { color: var(--muted); }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--accentBg); border: 1px solid var(--accentBorder);
+    color: var(--accent); font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 20px;
+  }
+  .badge-green {
+    background: var(--greenBg); border-color: var(--greenBorder); color: var(--green);
+  }
+  .section { padding: 100px 24px; max-width: 1100px; margin: 0 auto; }
+  .section-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 16px;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(to right, var(--accentBorder), transparent);
+    max-width: 80px;
+  }
+  h2.section-title {
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 900; letter-spacing: -0.02em; line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  p.section-sub {
+    font-size: 17px; color: var(--muted); max-width: 600px; line-height: 1.7;
+  }
+  .divider {
+    height: 1px; background: var(--border);
+    max-width: 1100px; margin: 0 auto;
+  }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px;
+  }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accentDim));
+    color: #000; font-size: 15px; font-weight: 800;
+    padding: 14px 28px; border-radius: 12px; border: none;
+    cursor: pointer; transition: opacity 0.2s, transform 0.15s;
+    letter-spacing: -0.01em;
+  }
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: transparent; color: var(--text); font-size: 15px; font-weight: 600;
+    padding: 14px 24px; border-radius: 12px;
+    border: 1px solid var(--borderLight); cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--accent); background: var(--accentBg); }
+
+  /* ── Nav ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,14,23,0.92); backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 20px; font-weight: 900; letter-spacing: -0.04em;
+    color: var(--accent);
+  }
+  .logo-badge {
+    background: var(--accent); color: #000;
+    font-size: 8px; font-weight: 800; letter-spacing: 0.1em;
+    padding: 3px 6px; border-radius: 4px; text-transform: uppercase;
+  }
+  .nav-links {
+    display: flex; align-items: center; gap: 32px; list-style: none;
+  }
+  .nav-links a {
+    font-size: 14px; font-weight: 500; color: var(--muted);
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    background: var(--accent); color: #000;
+    font-size: 14px; font-weight: 800;
+    padding: 10px 20px; border-radius: 10px; border: none;
+    cursor: pointer; transition: opacity 0.2s;
+  }
+  .nav-cta:hover { opacity: 0.85; }
+
+  /* ── Hero ── */
+  .hero {
+    min-height: 92vh; display: flex; align-items: center;
+    padding: 80px 24px; position: relative; overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 60% 30%, rgba(245,158,11,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 10% 80%, rgba(16,185,129,0.04) 0%, transparent 50%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0; z-index: 0; opacity: 0.03;
+    background-image: linear-gradient(var(--borderLight) 1px, transparent 1px),
+                      linear-gradient(90deg, var(--borderLight) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .hero-inner {
+    max-width: 1100px; margin: 0 auto; width: 100%;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 64px;
+    align-items: center; position: relative; z-index: 1;
+  }
+  .hero-eyebrow {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 24px;
+  }
+  .hero-live-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green); animation: pulse-dot 2s infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+  }
+  .hero-live-txt {
+    font-size: 12px; font-weight: 700; color: var(--green); letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  h1.hero-title {
+    font-size: clamp(36px, 5.5vw, 64px);
+    font-weight: 900; letter-spacing: -0.03em; line-height: 1.05;
+    margin-bottom: 24px;
+  }
+  .hero-title span {
+    background: linear-gradient(135deg, var(--accent), var(--accentLight));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-sub {
+    font-size: 18px; color: var(--muted); line-height: 1.7;
+    margin-bottom: 36px; max-width: 480px;
+  }
+  .hero-ctas {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    margin-bottom: 48px;
+  }
+  .hero-stats {
+    display: flex; gap: 32px; flex-wrap: wrap;
+  }
+  .hero-stat-val {
+    font-size: 26px; font-weight: 900; color: var(--accent);
+    letter-spacing: -0.02em; line-height: 1;
+  }
+  .hero-stat-lbl {
+    font-size: 12px; color: var(--dim); margin-top: 4px;
+  }
+
+  /* ── Phone Mockup ── */
+  .phone-wrap {
+    display: flex; justify-content: center; align-items: center;
+    position: relative;
+  }
+  .phone-glow {
+    position: absolute; inset: -40px;
+    background: radial-gradient(ellipse at center, rgba(245,158,11,0.12) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .phone {
+    width: 260px; background: #0d1117;
+    border-radius: 40px; padding: 12px;
+    border: 2px solid #2a2f3a;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+    position: relative; z-index: 1;
+  }
+  .phone-notch {
+    width: 90px; height: 24px; background: #0d1117;
+    border-radius: 0 0 16px 16px; margin: 0 auto 8px;
+    position: relative; z-index: 2;
+    border: 2px solid #2a2f3a; border-top: none;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .phone-notch-cam {
+    width: 8px; height: 8px; border-radius: 50%; background: #1a1f2a;
+    border: 1px solid #2a2f3a;
+  }
+  .phone-screen {
+    background: var(--bg); border-radius: 30px;
+    overflow: hidden; height: 500px; position: relative;
+  }
+  .screen {
+    position: absolute; inset: 0; padding: 16px;
+    transition: opacity 0.4s, transform 0.4s;
+    opacity: 0; transform: translateX(20px); pointer-events: none;
+  }
+  .screen.active { opacity: 1; transform: translateX(0); pointer-events: auto; }
+  .screen-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .screen-logo { font-size: 14px; font-weight: 900; color: var(--accent); letter-spacing: -0.03em; }
+  .screen-logo-badge {
+    background: var(--accent); color: #000; font-size: 6px;
+    font-weight: 800; padding: 2px 4px; border-radius: 3px;
+    text-transform: uppercase; margin-left: 4px;
+  }
+  .s-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px; margin-bottom: 8px;
+  }
+  .s-title { font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .s-row { display: flex; justify-content: space-between; align-items: center; }
+  .s-val { font-size: 13px; font-weight: 800; }
+  .s-lbl { font-size: 9px; color: var(--muted); }
+  .s-accent { color: var(--accent); }
+  .s-green { color: var(--green); }
+  .s-muted { color: var(--muted); }
+  .score-badge {
+    background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3);
+    color: var(--green); font-size: 10px; font-weight: 800;
+    padding: 2px 7px; border-radius: 6px;
+  }
+  .route-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+  .route-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .route-line { width: 1px; height: 14px; background: var(--border); margin-left: 2.5px; }
+  .route-txt { font-size: 11px; font-weight: 600; }
+  .rate-txt { font-size: 15px; font-weight: 900; color: var(--accent); }
+  .rpm-txt { font-size: 10px; color: var(--green); font-weight: 700; }
+  .chip {
+    display: inline-flex; align-items: center;
+    font-size: 9px; font-weight: 700; padding: 2px 7px;
+    border-radius: 10px; border: 1px solid;
+  }
+  .agent-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .progress-bar {
+    height: 4px; background: var(--border); border-radius: 4px; margin-top: 6px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accentLight));
+    animation: progress-anim 2s ease-in-out infinite alternate;
+  }
+  @keyframes progress-anim {
+    from { width: 35%; } to { width: 72%; }
+  }
+  .phone-tabs {
+    display: flex; background: #0d1117; padding: 8px 4px;
+    border-top: 1px solid var(--border); gap: 4px;
+  }
+  .phone-tab {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    gap: 3px; padding: 6px 4px; border-radius: 10px; cursor: pointer;
+    border: none; background: transparent; transition: background 0.2s;
+    font-size: 8px; color: var(--dim);
+  }
+  .phone-tab.active { color: var(--accent); }
+  .phone-tab svg { width: 18px; height: 18px; }
+  .tab-icon { font-size: 16px; line-height: 1; }
+  .ravyn-ring {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--accentBg); border: 2px solid var(--accentBorder);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; margin-right: 10px; flex-shrink: 0;
+    animation: ravyn-pulse 2.5s ease-in-out infinite;
+  }
+  @keyframes ravyn-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0.3); }
+    50% { box-shadow: 0 0 0 12px rgba(245,158,11,0); }
+  }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; }
+  .toggle-switch {
+    width: 36px; height: 20px; background: var(--green);
+    border-radius: 10px; position: relative; cursor: pointer;
+  }
+  .toggle-thumb {
+    position: absolute; top: 3px; right: 3px;
+    width: 14px; height: 14px; border-radius: 50%; background: #fff;
+  }
+  .call-history-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+  }
+  .outcome-badge {
+    font-size: 8px; font-weight: 700; padding: 2px 6px;
+    border-radius: 6px; text-transform: uppercase;
+  }
+  .outcome-booked { background: var(--greenBg); color: var(--green); border: 1px solid var(--greenBorder); }
+  .outcome-passed { background: rgba(107,114,128,0.15); color: var(--dim); border: 1px solid rgba(107,114,128,0.2); }
+  .waveform { display: flex; align-items: center; gap: 2px; height: 20px; }
+  .waveform-bar {
+    width: 3px; background: var(--accent); border-radius: 2px;
+    animation: wave 1.2s ease-in-out infinite;
+  }
+  .waveform-bar:nth-child(2) { animation-delay: 0.1s; }
+  .waveform-bar:nth-child(3) { animation-delay: 0.2s; }
+  .waveform-bar:nth-child(4) { animation-delay: 0.3s; }
+  .waveform-bar:nth-child(5) { animation-delay: 0.15s; }
+  @keyframes wave {
+    0%, 100% { height: 4px; }
+    50% { height: 16px; }
+  }
+
+  /* ── Demo Call Section ── */
+  .demo-call-section {
+    padding: 80px 24px; background: var(--cardAlt);
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  }
+  .demo-call-inner { max-width: 800px; margin: 0 auto; text-align: center; }
+  .call-player {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 32px; margin-top: 40px;
+    position: relative; overflow: hidden;
+  }
+  .call-player-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(245,158,11,0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .call-avatar {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accentDim));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; margin: 0 auto 16px;
+    box-shadow: 0 0 0 12px var(--accentBg), 0 0 0 24px rgba(245,158,11,0.05);
+  }
+  .call-name { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+  .call-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+  .call-transcript {
+    background: var(--cardAlt); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; text-align: left;
+    margin-bottom: 24px; min-height: 100px;
+  }
+  .transcript-line {
+    font-size: 14px; line-height: 1.7; color: var(--muted);
+    display: none;
+  }
+  .transcript-line.visible { display: block; color: var(--text); }
+  .transcript-cursor {
+    display: inline-block; width: 2px; height: 14px;
+    background: var(--accent); margin-left: 2px; vertical-align: middle;
+    animation: blink 1s infinite;
+  }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  .play-btn {
+    width: 60px; height: 60px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accentDim));
+    border: none; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; font-size: 22px; margin: 0 auto;
+    transition: transform 0.2s, opacity 0.2s;
+    box-shadow: 0 8px 24px rgba(245,158,11,0.3);
+  }
+  .play-btn:hover { transform: scale(1.08); }
+  .play-btn.playing { background: var(--greenBg); border: 1px solid var(--greenBorder); }
+  .call-progress {
+    width: 100%; height: 4px; background: var(--border);
+    border-radius: 4px; margin-top: 16px; overflow: hidden;
+  }
+  .call-progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--accent), var(--accentLight));
+    border-radius: 4px; width: 0%; transition: width 0.3s linear;
+  }
+  .call-timer { font-size: 12px; color: var(--dim); margin-top: 8px; }
+
+  /* ── How It Works ── */
+  .steps-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+    margin-top: 60px;
+  }
+  .step {
+    position: relative;
+  }
+  .step-connector {
+    position: absolute; top: 28px; left: calc(100% + 0px);
+    width: 20px; height: 1px;
+    background: linear-gradient(to right, var(--accentBorder), transparent);
+    z-index: 1;
+  }
+  .step:last-child .step-connector { display: none; }
+  .step-num {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: var(--accentBg); border: 1px solid var(--accentBorder);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 16px;
+  }
+  .step-title { font-size: 16px; font-weight: 800; margin-bottom: 8px; }
+  .step-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* ── Features ── */
+  .features-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    margin-top: 60px;
+  }
+  .feature-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 28px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .feature-card:hover { border-color: var(--accentBorder); transform: translateY(-2px); }
+  .feature-card.featured {
+    grid-column: span 2;
+    background: linear-gradient(135deg, rgba(245,158,11,0.06) 0%, var(--card) 50%);
+    border-color: var(--accentBorder);
+    display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;
+  }
+  .feature-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; margin-bottom: 16px;
+  }
+  .feature-icon.amber { background: var(--accentBg); border: 1px solid var(--accentBorder); }
+  .feature-icon.green { background: var(--greenBg); border: 1px solid var(--greenBorder); }
+  .feature-icon.blue  { background: var(--blueBg); border: 1px solid rgba(59,130,246,0.25); }
+  .feature-icon.red   { background: var(--redBg); border: 1px solid rgba(239,68,68,0.25); }
+  .feature-title { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
+  .feature-desc { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 16px; }
+  .feature-points { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .feature-points li {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 13px; color: var(--muted); line-height: 1.5;
+  }
+  .feature-points li::before {
+    content: ''; width: 16px; height: 16px; border-radius: 50%;
+    background: var(--greenBg); border: 1px solid var(--greenBorder);
+    flex-shrink: 0; margin-top: 1px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2310B981'%3E%3Cpath d='M3 8l3.5 3.5L13 4.5'/%3E%3C/svg%3E");
+    background-size: contain;
+  }
+  .ravyn-demo {
+    background: var(--cardAlt); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px;
+  }
+  .ravyn-call-row {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+  }
+  .ravyn-avatar-sm {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accentDim));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .speech-bubble {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px 12px 12px 2px;
+    padding: 10px 14px; font-size: 12px; color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ── Pricing ── */
+  .pricing-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    margin-top: 60px; align-items: start;
+  }
+  .price-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 32px; position: relative; overflow: hidden;
+  }
+  .price-card.popular {
+    border-color: var(--accent);
+    background: linear-gradient(160deg, rgba(245,158,11,0.08) 0%, var(--card) 40%);
+  }
+  .popular-tag {
+    position: absolute; top: 16px; right: 16px;
+    background: var(--accent); color: #000;
+    font-size: 10px; font-weight: 800; letter-spacing: 0.06em;
+    padding: 4px 10px; border-radius: 20px; text-transform: uppercase;
+  }
+  .price-tier { font-size: 12px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .price-amount {
+    font-size: 48px; font-weight: 900; letter-spacing: -0.03em;
+    color: var(--text); line-height: 1; margin-bottom: 4px;
+  }
+  .price-amount span { font-size: 22px; font-weight: 600; vertical-align: top; margin-top: 8px; display: inline-block; }
+  .price-period { font-size: 13px; color: var(--dim); margin-bottom: 4px; }
+  .price-save {
+    font-size: 12px; color: var(--green); font-weight: 700; margin-bottom: 20px;
+  }
+  .price-divider { height: 1px; background: var(--border); margin: 20px 0; }
+  .price-feature {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 10px;
+  }
+  .price-check { color: var(--green); font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .price-cross { color: var(--dim); font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .price-feature strong { color: var(--text); }
+  .price-btn {
+    display: block; width: 100%; padding: 14px;
+    border-radius: 12px; font-size: 15px; font-weight: 800;
+    text-align: center; cursor: pointer; border: none;
+    margin-top: 28px; transition: opacity 0.2s, transform 0.15s;
+  }
+  .price-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .price-btn-primary { background: linear-gradient(135deg, var(--accent), var(--accentDim)); color: #000; }
+  .price-btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--borderLight); }
+  .trial-note { font-size: 12px; color: var(--dim); text-align: center; margin-top: 10px; }
+
+  /* ── Signup ── */
+  .signup-section {
+    padding: 100px 24px;
+    background: linear-gradient(160deg, rgba(245,158,11,0.04) 0%, transparent 40%);
+    border-top: 1px solid var(--border);
+  }
+  .signup-inner { max-width: 520px; margin: 0 auto; text-align: center; }
+  .signup-form { margin-top: 40px; display: flex; flex-direction: column; gap: 14px; }
+  .form-input {
+    width: 100%; padding: 14px 16px;
+    background: var(--card); border: 1px solid var(--borderLight);
+    border-radius: 12px; color: var(--text); font-size: 15px;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .form-input:focus { border-color: var(--accent); }
+  .form-input::placeholder { color: var(--dim); }
+  .form-select {
+    width: 100%; padding: 14px 16px;
+    background: var(--card); border: 1px solid var(--borderLight);
+    border-radius: 12px; color: var(--text); font-size: 15px;
+    appearance: none; cursor: pointer; outline: none;
+  }
+  .form-select:focus { border-color: var(--accent); }
+  .signup-submit {
+    width: 100%; padding: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accentDim));
+    color: #000; font-size: 16px; font-weight: 800;
+    border-radius: 12px; border: none; cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+  }
+  .signup-submit:hover { opacity: 0.9; transform: translateY(-1px); }
+  .form-disclaimer {
+    font-size: 12px; color: var(--dim); margin-top: 8px;
+  }
+  .success-msg {
+    display: none; background: var(--greenBg); border: 1px solid var(--greenBorder);
+    border-radius: 12px; padding: 20px; color: var(--green);
+    font-size: 15px; font-weight: 600; margin-top: 20px;
+  }
+
+  /* ── FAQ ── */
+  .faq-list { margin-top: 56px; display: flex; flex-direction: column; gap: 12px; }
+  .faq-item {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .faq-item.open { border-color: var(--accentBorder); }
+  .faq-question {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 24px; cursor: pointer;
+    font-size: 16px; font-weight: 700; color: var(--text);
+    gap: 16px; user-select: none;
+  }
+  .faq-question:hover { color: var(--accent); }
+  .faq-icon {
+    width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+    background: var(--accentBg); border: 1px solid var(--accentBorder);
+    color: var(--accent); font-size: 16px; font-weight: 300;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.25s, background 0.2s;
+  }
+  .faq-item.open .faq-icon { transform: rotate(45deg); background: var(--accent); color: #000; }
+  .faq-answer {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.35s ease, padding 0.25s ease;
+    padding: 0 24px;
+    font-size: 14px; color: var(--muted); line-height: 1.75;
+  }
+  .faq-item.open .faq-answer { max-height: 400px; padding: 0 24px 20px; }
+  .faq-answer strong { color: var(--text); }
+  .faq-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 768px) { .faq-2col { grid-template-columns: 1fr; } }
+
+  /* ── Footer ── */
+  footer {
+    border-top: 1px solid var(--border); padding: 40px 24px;
+  }
+  .footer-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .footer-copy { font-size: 13px; color: var(--dim); }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { font-size: 13px; color: var(--dim); transition: color 0.2s; }
+  .footer-links a:hover { color: var(--muted); }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .hero-inner { grid-template-columns: 1fr; }
+    .phone-wrap { display: none; }
+    .steps-grid { grid-template-columns: 1fr 1fr; }
+    .features-grid { grid-template-columns: 1fr; }
+    .feature-card.featured { grid-column: span 1; grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-inner">
+    <div class="logo">
+      RigHawk<span class="logo-badge">AI</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#demo">Hear Ravyn</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <button class="nav-cta" onclick="document.getElementById('signup').scrollIntoView({behavior:'smooth'})">
+      Join the Waitlist
+    </button>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <div class="hero-live-dot"></div>
+        <span class="hero-live-txt">AI Dispatch · Live 24/7</span>
+      </div>
+      <h1 class="hero-title">Your AI<br>Dispatcher.<br><span>Always On.</span></h1>
+      <p class="hero-sub">
+        RigHawkAI finds high-paying loads, scores them instantly, and has Ravyn — your AI dispatch agent — call you directly with the details. No human dispatcher. No cut of your revenue. Just more money in your pocket.
+      </p>
+      <div class="hero-ctas">
+        <button class="btn-primary" onclick="document.getElementById('signup').scrollIntoView({behavior:'smooth'})">
+          🚛 Join the Waitlist
+        </button>
+        <button class="btn-ghost" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">
+          ▶ Hear Ravyn Call
+        </button>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-val">$1,400+</div>
+          <div class="hero-stat-lbl">Avg monthly dispatcher cost</div>
+        </div>
+        <div>
+          <div class="hero-stat-val">$147</div>
+          <div class="hero-stat-lbl">Founding member rate — locked for life</div>
+        </div>
+        <div>
+          <div class="hero-stat-val">24/7</div>
+          <div class="hero-stat-lbl">Ravyn never sleeps</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phone Mockup -->
+    <div class="phone-wrap">
+      <div class="phone-glow"></div>
+      <div class="phone">
+        <div class="phone-notch">
+          <div class="phone-notch-cam"></div>
+        </div>
+        <div class="phone-screen">
+
+          <!-- Screen 1: Dashboard -->
+          <div class="screen active" id="screen-dashboard">
+            <div class="screen-header">
+              <div>
+                <span class="screen-logo">RigHawk<span class="screen-logo-badge">AI</span></span>
+              </div>
+              <span style="font-size:9px; color:var(--muted)">Hey, Michael 👋</span>
+            </div>
+            <div class="s-card">
+              <div class="s-title">🤖 Ravyn · AI Dispatch Agent</div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                <div class="ravyn-ring" style="width:28px;height:28px;font-size:12px;margin:0">🦅</div>
+                <div>
+                  <div style="font-size:10px;font-weight:700;color:var(--accent)">HUNTING</div>
+                  <div style="font-size:9px;color:var(--muted)">Scanning for Car Hauler loads...</div>
+                </div>
+              </div>
+              <div class="progress-bar"><div class="progress-fill"></div></div>
+            </div>
+            <div class="s-card">
+              <div class="s-row" style="margin-bottom:6px">
+                <div class="s-title" style="margin:0">🎯 Top Match</div>
+                <div class="score-badge">94 pts</div>
+              </div>
+              <div class="route-row">
+                <div class="route-dot" style="background:var(--green)"></div>
+                <div class="route-txt">Chicago, Illinois</div>
+              </div>
+              <div style="display:flex;gap:6px;margin-left:3px;margin-bottom:2px">
+                <div class="route-line"></div>
+              </div>
+              <div class="route-row" style="margin-bottom:8px">
+                <div class="route-dot" style="background:var(--red)"></div>
+                <div class="route-txt">Atlanta, Georgia</div>
+              </div>
+              <div class="s-row">
+                <div>
+                  <div class="rate-txt">$2,112</div>
+                  <div class="rpm-txt">$2.95/mi · 716 mi</div>
+                </div>
+                <div style="background:linear-gradient(135deg,var(--accent),var(--accentDim));color:#000;font-size:9px;font-weight:800;padding:6px 12px;border-radius:8px;">BOOK</div>
+              </div>
+            </div>
+            <div class="s-card" style="display:flex;align-items:center;justify-content:space-between">
+              <div>
+                <div style="font-size:9px;color:var(--muted)">This Week</div>
+                <div style="font-size:15px;font-weight:900;color:var(--green)">$8,450</div>
+              </div>
+              <div>
+                <div style="font-size:9px;color:var(--muted)">Avg RPM</div>
+                <div style="font-size:15px;font-weight:900;color:var(--accent)">$2.87</div>
+              </div>
+              <div>
+                <div style="font-size:9px;color:var(--muted)">Loads</div>
+                <div style="font-size:15px;font-weight:900;color:var(--text)">4</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Screen 2: Loads -->
+          <div class="screen" id="screen-loads">
+            <div class="screen-header">
+              <div class="screen-logo">Loads</div>
+              <div style="font-size:9px;color:var(--accent);font-weight:700;">3 new</div>
+            </div>
+            <!-- Load 1 -->
+            <div class="s-card">
+              <div class="s-row" style="margin-bottom:6px">
+                <div style="font-size:10px;color:var(--muted)">Car Hauler · 4 vehicles · 716 mi</div>
+                <div class="score-badge">94</div>
+              </div>
+              <div style="font-size:12px;font-weight:700;margin-bottom:4px">Chicago, IL → Atlanta, GA</div>
+              <div class="s-row">
+                <div>
+                  <div style="font-size:14px;font-weight:900;color:var(--accent)">$2,112</div>
+                  <div style="font-size:9px;color:var(--green);font-weight:700">$2.95/mi</div>
+                </div>
+                <div style="display:flex;gap:4px">
+                  <div class="chip" style="background:var(--redBg);color:var(--red);border-color:rgba(239,68,68,0.3)">🔥 Hot</div>
+                  <div class="chip" style="background:var(--accentBg);color:var(--accent);border-color:var(--accentBorder)">+$0.18/mi</div>
+                </div>
+              </div>
+            </div>
+            <!-- Load 2 -->
+            <div class="s-card">
+              <div class="s-row" style="margin-bottom:6px">
+                <div style="font-size:10px;color:var(--muted)">Car Hauler · 3 vehicles · 524 mi</div>
+                <div style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:var(--accent);font-size:10px;font-weight:800;padding:2px 7px;border-radius:6px;">87</div>
+              </div>
+              <div style="font-size:12px;font-weight:700;margin-bottom:4px">Memphis, TN → Dallas, TX</div>
+              <div class="s-row">
+                <div>
+                  <div style="font-size:14px;font-weight:900;color:var(--accent)">$1,624</div>
+                  <div style="font-size:9px;color:var(--green);font-weight:700">$3.10/mi</div>
+                </div>
+                <div style="font-size:9px;color:var(--muted)">Coyote Logistics</div>
+              </div>
+            </div>
+            <!-- Load 3 -->
+            <div class="s-card">
+              <div class="s-row" style="margin-bottom:6px">
+                <div style="font-size:10px;color:var(--muted)">Car Hauler · 6 vehicles · 892 mi</div>
+                <div style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:var(--accent);font-size:10px;font-weight:800;padding:2px 7px;border-radius:6px;">81</div>
+              </div>
+              <div style="font-size:12px;font-weight:700;margin-bottom:4px">Nashville, TN → Phoenix, AZ</div>
+              <div class="s-row">
+                <div>
+                  <div style="font-size:14px;font-weight:900;color:var(--accent)">$2,498</div>
+                  <div style="font-size:9px;color:var(--green);font-weight:700">$2.80/mi</div>
+                </div>
+                <div style="font-size:9px;color:var(--muted)">Echo Global</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Screen 3: Ravyn (Voice Agent) -->
+          <div class="screen" id="screen-ravyn">
+            <div class="screen-header">
+              <div class="screen-logo">Ravyn</div>
+              <div style="background:var(--greenBg);border:1px solid var(--greenBorder);color:var(--green);font-size:8px;font-weight:700;padding:2px 6px;border-radius:8px;">ON</div>
+            </div>
+            <div class="s-card" style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+              <div class="ravyn-ring" style="width:40px;height:40px;font-size:18px">🦅</div>
+              <div>
+                <div style="font-size:12px;font-weight:800">Ravyn · AI Dispatcher</div>
+                <div style="font-size:9px;color:var(--muted)">Calls you on high-scoring loads</div>
+              </div>
+            </div>
+            <div class="s-card">
+              <div class="toggle-row" style="margin-bottom:10px">
+                <div style="font-size:11px;font-weight:700">Voice Calls Active</div>
+                <div class="toggle-switch"><div class="toggle-thumb"></div></div>
+              </div>
+              <div class="toggle-row">
+                <div style="font-size:10px;color:var(--muted)">Quiet Hours</div>
+                <div style="font-size:10px;color:var(--accent);font-weight:700">10PM – 7AM</div>
+              </div>
+            </div>
+            <div class="s-card">
+              <div style="font-size:10px;font-weight:700;margin-bottom:8px">Recent Calls</div>
+              <div class="call-history-item">
+                <div>
+                  <div style="font-size:10px;font-weight:700">Chicago → Atlanta</div>
+                  <div style="font-size:9px;color:var(--muted)">Today · 9:14 AM</div>
+                </div>
+                <div class="outcome-badge outcome-booked">Booked</div>
+              </div>
+              <div class="call-history-item" style="border:none">
+                <div>
+                  <div style="font-size:10px;font-weight:700">Memphis → Dallas</div>
+                  <div style="font-size:9px;color:var(--muted)">Yesterday</div>
+                </div>
+                <div class="outcome-badge outcome-passed">Passed</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Screen 4: Money/Invoices -->
+          <div class="screen" id="screen-money">
+            <div class="screen-header">
+              <div class="screen-logo">Money</div>
+              <div style="font-size:9px;color:var(--green);font-weight:700">↑ 12% this month</div>
+            </div>
+            <div class="s-card" style="background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(245,158,11,0.05));border-color:var(--accentBorder)">
+              <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Total Earnings · This Month</div>
+              <div style="font-size:28px;font-weight:900;color:var(--accent);letter-spacing:-0.02em">$22,840</div>
+              <div style="font-size:10px;color:var(--green);font-weight:700;margin-top:4px">↑ $2,400 vs last month</div>
+            </div>
+            <div class="s-card">
+              <div style="font-size:10px;font-weight:700;margin-bottom:8px">Recent Invoices</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
+                <div>
+                  <div style="font-size:10px;font-weight:700">INV-0042</div>
+                  <div style="font-size:9px;color:var(--muted)">Coyote Logistics</div>
+                </div>
+                <div style="text-align:right">
+                  <div style="font-size:11px;font-weight:800;color:var(--green)">$2,112</div>
+                  <div style="background:var(--greenBg);color:var(--green);font-size:8px;font-weight:700;padding:1px 5px;border-radius:4px">PAID</div>
+                </div>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0">
+                <div>
+                  <div style="font-size:10px;font-weight:700">INV-0041</div>
+                  <div style="font-size:9px;color:var(--muted)">Echo Global</div>
+                </div>
+                <div style="text-align:right">
+                  <div style="font-size:11px;font-weight:800;color:var(--accent)">$2,498</div>
+                  <div style="background:var(--accentBg);color:var(--accent);font-size:8px;font-weight:700;padding:1px 5px;border-radius:4px">SENT</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /phone-screen -->
+
+        <!-- Tab Bar -->
+        <div class="phone-tabs">
+          <button class="phone-tab active" onclick="switchScreen('dashboard',this)">
+            <span class="tab-icon">🏠</span>
+            <span>Home</span>
+          </button>
+          <button class="phone-tab" onclick="switchScreen('loads',this)">
+            <span class="tab-icon">📦</span>
+            <span>Loads</span>
+          </button>
+          <button class="phone-tab" onclick="switchScreen('ravyn',this)">
+            <span class="tab-icon">🦅</span>
+            <span>Ravyn</span>
+          </button>
+          <button class="phone-tab" onclick="switchScreen('money',this)">
+            <span class="tab-icon">💰</span>
+            <span>Money</span>
+          </button>
+        </div>
+
+      </div><!-- /phone -->
+    </div><!-- /phone-wrap -->
+  </div>
+</section>
+
+<!-- ── DEMO CALL ── -->
+<section class="demo-call-section" id="demo">
+  <div class="demo-call-inner">
+    <div class="section-label">Hear Ravyn in Action</div>
+    <h2 class="section-title">She calls you.<br>You just say yes.</h2>
+    <p class="section-sub" style="margin:12px auto 0">This is an actual example of what Ravyn sounds like when she finds a high-scoring load and calls your phone.</p>
+
+    <div class="call-player">
+      <div class="call-player-bg"></div>
+      <div class="call-avatar">🦅</div>
+      <div class="call-name">Ravyn · RigHawkAI</div>
+      <div class="call-subtitle">Incoming call · AI Dispatch Agent</div>
+
+      <div class="call-transcript" id="call-transcript">
+        <span style="font-size:12px;color:var(--dim)" id="transcript-placeholder">Press play to hear Ravyn's dispatch call...</span>
+        <span id="transcript-text" style="font-size:14px;line-height:1.7;color:var(--text)"></span>
+        <span class="transcript-cursor" id="transcript-cursor" style="display:none"></span>
+      </div>
+
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <button class="play-btn" id="play-btn" onclick="toggleCall()" title="Play demo call">▶</button>
+        <div class="call-progress"><div class="call-progress-fill" id="call-progress"></div></div>
+        <div class="call-timer" id="call-timer">0:00 / 0:28</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section class="section" id="how-it-works">
+  <div class="section-label">How It Works</div>
+  <h2 class="section-title">From scan to booked.<br>Automatically.</h2>
+  <p class="section-sub">RigHawkAI runs on autopilot so you can stay focused on the road — not the load board.</p>
+
+  <div class="steps-grid">
+    <div class="step">
+      <div class="step-connector"></div>
+      <div class="step-num">🔍</div>
+      <div class="step-title">You Set Your Preferences</div>
+      <div class="step-desc">Tell RigHawkAI your equipment type, preferred lanes, minimum rate per mile, and quiet hours. Takes two minutes during onboarding.</div>
+    </div>
+    <div class="step">
+      <div class="step-connector"></div>
+      <div class="step-num">🎯</div>
+      <div class="step-title">AI Discovers & Scores Loads</div>
+      <div class="step-desc">Every 10 minutes, the engine scans available loads and scores each one out of 100 based on equipment match, rate per mile, mileage, and your lane preferences.</div>
+    </div>
+    <div class="step">
+      <div class="step-connector"></div>
+      <div class="step-num">📞</div>
+      <div class="step-title">Ravyn Calls You</div>
+      <div class="step-desc">When a load scores 85 or above, Ravyn calls your phone and reads you the full details — origin, destination, rate, mileage, weight, broker, and pickup date — clearly and naturally.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">✅</div>
+      <div class="step-title">You Accept or Pass</div>
+      <div class="step-desc">Just say "book it" or "pass." Ravyn logs your decision, marks the load accordingly, and keeps scanning. Your dashboard updates in real time.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── FEATURES ── -->
+<section class="section" id="features">
+  <div class="section-label">Features</div>
+  <h2 class="section-title">Everything your dispatcher<br>did. And more.</h2>
+  <p class="section-sub">RigHawkAI isn't just a load board. It's an intelligent business partner that works around the clock — without taking a cut of your revenue.</p>
+
+  <div class="features-grid">
+
+    <!-- Ravyn - Featured -->
+    <div class="feature-card featured">
+      <div>
+        <div class="feature-icon amber">🦅</div>
+        <div class="feature-title">Ravyn — Your AI Dispatch Agent</div>
+        <div class="feature-desc">
+          Ravyn is your 24/7 AI dispatcher. She monitors load availability, scores every opportunity against your preferences, and calls your phone the moment a high-value load appears. She speaks naturally, reads every detail clearly, and never wakes you during quiet hours.
+        </div>
+        <ul class="feature-points">
+          <li>Calls your phone directly — you don't need to open the app</li>
+          <li>Reads full load details: rate, miles, broker, pickup date, weight</li>
+          <li>Respects your quiet hours and Do Not Disturb settings</li>
+          <li>Built-in guardrails: no repeat calls on the same lane within 24 hours, 15-minute cooldown between calls, and no calls if you already have an active load</li>
+          <li>Never discusses anything outside the specific load she's calling about</li>
+        </ul>
+      </div>
+      <div class="ravyn-demo">
+        <div class="ravyn-call-row">
+          <div class="ravyn-avatar-sm">🦅</div>
+          <div>
+            <div style="font-size:11px;font-weight:700;margin-bottom:4px">Ravyn is calling...</div>
+            <div class="waveform">
+              <div class="waveform-bar" style="height:6px"></div>
+              <div class="waveform-bar" style="height:14px"></div>
+              <div class="waveform-bar" style="height:10px"></div>
+              <div class="waveform-bar" style="height:18px"></div>
+              <div class="waveform-bar" style="height:8px"></div>
+              <div class="waveform-bar" style="height:14px"></div>
+              <div class="waveform-bar" style="height:6px"></div>
+            </div>
+          </div>
+        </div>
+        <div class="speech-bubble">
+          "Hey Micheal, I found a Car Hauler load scoring ninety-four points. Chicago, Illinois to Atlanta, Georgia — four vehicles, seven hundred sixteen miles, paying <strong style="color:var(--accent)">twelve hundred dollars</strong>, that's <strong style="color:var(--green)">one dollar and sixty-eight cents per mile</strong>. Pickup is this Thursday with Coyote Logistics. Want me to book it?"
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px">
+          <div style="flex:1;background:var(--greenBg);border:1px solid var(--greenBorder);color:var(--green);font-size:11px;font-weight:800;padding:8px;border-radius:8px;text-align:center;">✓ Book It</div>
+          <div style="flex:1;background:rgba(107,114,128,0.1);border:1px solid rgba(107,114,128,0.2);color:var(--dim);font-size:11px;font-weight:700;padding:8px;border-radius:8px;text-align:center;">Pass</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Load Discovery -->
+    <div class="feature-card">
+      <div class="feature-icon green">📡</div>
+      <div class="feature-title">AI Load Discovery</div>
+      <div class="feature-desc">
+        RigHawkAI automatically scans available loads across major freight lanes every 10 minutes — no manual searching required. Every load is evaluated and scored before it ever reaches you.
+      </div>
+      <ul class="feature-points">
+        <li>Scans automatically every 10 minutes, around the clock</li>
+        <li>Covers 20+ major US freight corridors</li>
+        <li>Filters by your equipment type before you ever see a result</li>
+        <li>Only surfaces loads that meet your minimum rate per mile</li>
+        <li>Works while you're driving, sleeping, or off the clock</li>
+      </ul>
+    </div>
+
+    <!-- Smart Scoring -->
+    <div class="feature-card">
+      <div class="feature-icon amber">🎯</div>
+      <div class="feature-title">Smart Load Scoring</div>
+      <div class="feature-desc">
+        Not all loads are equal. RigHawkAI's scoring engine evaluates every load across four dimensions and assigns a score from 0–100, so you always know exactly how good a load is before you decide.
+      </div>
+      <ul class="feature-points">
+        <li><strong style="color:var(--text)">Equipment match (40 pts)</strong> — does it fit your truck?</li>
+        <li><strong style="color:var(--text)">Rate per mile (30 pts)</strong> — how does it stack up against market?</li>
+        <li><strong style="color:var(--text)">Mileage (20 pts)</strong> — distance optimized for your target range</li>
+        <li><strong style="color:var(--text)">Lane preference (10 pts)</strong> — bonus points for your preferred routes</li>
+        <li>Ravyn only calls for loads scoring 85 or above (Growth+) or the top 10 monthly (Starter)</li>
+      </ul>
+    </div>
+
+    <!-- Invoicing -->
+    <div class="feature-card">
+      <div class="feature-icon blue">🧾</div>
+      <div class="feature-title">Invoice Creation</div>
+      <div class="feature-desc">
+        Create professional invoices directly in the app after every load. Track what's been sent, what's been paid, and what's still outstanding — all in one place. Available on Growth and Fleet plans.
+      </div>
+      <ul class="feature-points">
+        <li>Generate invoices directly from completed loads</li>
+        <li>Track payment status: sent, paid, and outstanding</li>
+        <li>Monthly and lifetime earnings summary on your Money dashboard</li>
+        <li>Clean, professional format ready to send to any broker</li>
+      </ul>
+    </div>
+
+    <!-- Document Storage -->
+    <div class="feature-card">
+      <div class="feature-icon red">📁</div>
+      <div class="feature-title">Document Storage</div>
+      <div class="feature-desc">
+        Keep your CDL, insurance certificate, BOLs, and other critical documents in one secure place inside the app. No more digging through emails or glove compartments. Available on Growth and Fleet plans.
+      </div>
+      <ul class="feature-points">
+        <li>Upload and store CDL, insurance, BOLs, and permits</li>
+        <li>Accessible anytime from your phone</li>
+        <li>Organized and searchable — find what you need fast</li>
+        <li>Secure storage tied to your RigHawkAI account</li>
+      </ul>
+    </div>
+
+    <!-- Fleet Management -->
+    <div class="feature-card" style="grid-column:span 2;background:linear-gradient(135deg,rgba(59,130,246,0.06),var(--card));border-color:rgba(59,130,246,0.25)">
+      <div class="feature-icon blue">🚛</div>
+      <div class="feature-title">Fleet Management <span style="font-size:13px;color:var(--muted);font-weight:500">— Fleet Plan</span></div>
+      <div class="feature-desc">
+        Running more than one truck? The Fleet plan gives you a full command center for your entire operation. Manage up to 20 trucks, monitor every driver's Ravyn activity, and get the big-picture analytics to make smarter business decisions.
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px">
+        <div style="background:var(--cardAlt);border:1px solid var(--border);border-radius:12px;padding:16px">
+          <div style="font-size:20px;margin-bottom:6px">👥</div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:4px">Multi-Driver Management</div>
+          <div style="font-size:12px;color:var(--muted)">Add up to 20 drivers, each with their own Ravyn settings, equipment type, and lane preferences</div>
+        </div>
+        <div style="background:var(--cardAlt);border:1px solid var(--border);border-radius:12px;padding:16px">
+          <div style="font-size:20px;margin-bottom:6px">📊</div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:4px">Fleet Analytics Dashboard</div>
+          <div style="font-size:12px;color:var(--muted)">Track earnings, load acceptance rates, average RPM, and Ravyn call outcomes across your entire fleet</div>
+        </div>
+        <div style="background:var(--cardAlt);border:1px solid var(--border);border-radius:12px;padding:16px">
+          <div style="font-size:20px;margin-bottom:6px">🎧</div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:4px">Priority Support</div>
+          <div style="font-size:12px;color:var(--muted)">Dedicated onboarding call and priority response from our team — we help you get every truck set up right</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── PRICING ── -->
+<section class="section" id="pricing">
+  <div class="section-label">Founding Member Pricing</div>
+  <h2 class="section-title">The average dispatcher<br>costs $1,400/month.</h2>
+  <p class="section-sub">Ravyn works 24/7 and never takes a cut of your load. Join the waitlist today and lock your founding rate permanently — spots are limited.</p>
+
+  <div class="pricing-grid">
+
+    <!-- Starter -->
+    <div class="price-card">
+      <div class="price-tier">Starter</div>
+      <div class="price-amount"><span>$</span>147</div>
+      <div class="price-period">per month — founding member rate</div>
+      <div class="price-save">$197/mo after founding period · Save $1,250+/mo vs. a dispatcher</div>
+      <div class="price-divider"></div>
+
+      <div class="price-feature"><span class="price-check">✓</span><div><strong>1 truck</strong></div></div>
+      <div class="price-feature"><span class="price-check">✓</span><div><strong>AI load discovery</strong> — automated scanning every 10 minutes</div></div>
+      <div class="price-feature"><span class="price-check">✓</span><div><strong>Smart load scoring</strong> — every load rated 0–100 before you see it</div></div>
+      <div class="price-feature"><span class="price-check">✓</span><div><strong>Lane preferences</strong> — Ravyn learns your favorite routes</div></div>
+      <div class="price-feature"><span class="price-check">✓</span><div><strong>Ravyn voice calls</strong> — 10 calls/month on loads scoring 85+</div></div>
+      <div class="price-feature"><span class="price-check">✓</span><div><strong>Core guardrails</strong> — cooldown, duplicate lane block, active load check</div></div>
+      <div class="price-feature"><span class="price-check">✓</span><div>Push &amp; email load alerts</div></div>
+      <div class="price-feature"><span class="price-cross">✗</span><div style="color:var(--dim)">Quiet hours / DND customization</div></div>
+      <div class="price-feature"><span class="price-cross">✗</span><div style="color:var(--dim)">Invoicing</div></div>
+      <div class="price-feature"><span class="price-cross">✗</span><div style="color:var(--dim)">Document storage</div></div>
+
+      <button class="price-btn price-btn-ghost" onclick="document.getElementById('signup').scrollIntoView({behavior:'smooth'})">Lock My Founding Rate</button>
+      <div class="trial-note">Founding member pricing · Locked for life</div>
+    </div>
+
+    <!-- Pro (Popular) -->
+    <div class="price-card popular">
+      <div class="popular-tag">Most Popular</div>
+      <div class="price-tier">Pro</div>
+      <div class="price-amount"><span>$</span>197</div>
+      <div class="price-period">per month — founding member rate</div>
+      <div class="price-save">$297/mo after founding period · Save $1,200+/mo vs. a dispatcher</div>
+      <div class="price-divider"></div>
+
+      <div class="price-feature"><span class="price-check">✓</span><div><strong>1 truck</strong></div></div>
+      <div class="price-feature"><span class="price-check">✓</span><div>Everything in Starter</div></div>
+      <div class="price-feature"><span class="price-check">✓</span><div><strong>Unlimited Ravyn calls</strong> — she calls every qualifying load, no cap</div></div>
+      <div class="price-feature"><span class="price-check">✓</span><div><strong>Full guardrail customization</strong> — set quiet hours, DND toggle, minimum RPM, preferred lanes</div></div>
+      <div class="price-feature"><span class="price-check">✓</span><div><strong>Broker ratings</strong> — see community ratings before you accept a load</div></div>
+      <div class="price-feature"><span class="price-check">✓</span><div><strong>Invoice creation</strong> — generate and track invoices from completed loads</div></div>
+      <div class="price-feature"><span class="price-check">✓</span><div><strong>Document storage</strong> — CDL, insurance, BOLs, and permits in one place</div></div>
+      <div class="price-feature"><span class="price-check">✓</span><div>Full earnings dashboard with load history</div></div>
+
+      <button class="price-btn price-btn-primary" onclick="document.getElementById('signup').scrollIntoView({behavior:'smooth'})">Lock My Founding Rate</button>
+      <div class="trial-note">Founding member pricing · Locked for life</div>
+    </div>
+
+    <!-- Fleet -->
+    <div class="price-card">
+      <div class="price-tier">Fleet</div>
+      <div class="price-amount"><span>$</span>347</div>
+      <div class="price-period">per month — founding member rate</div>
+      <div class="price-save">$497/mo after founding period · Replace 2–3 dispatchers</div>
+      <div class="price-divider"></div>
+
+      <div class="price-feature"><span class="price-check">✓</span><div><strong>Up to 20 trucks</strong></div></div>
+      <div class="price-feature"><span class="price-check">✓</span><div>Everything in Pro, for every driver</div></div>
+      <div class="price-feature"><span class="price-check">✓</span><div><strong>Multi-driver management</strong> — each driver has their own Ravyn settings and preferences</div></div>
+      <div class="price-feature"><span class="price-check">✓</span><div><strong>Fleet analytics dashboard</strong> — earnings, RPM, acceptance rates, and Ravyn call data across your whole fleet</div></div>
+      <div class="price-feature"><span class="price-check">✓</span><div><strong>Priority support</strong> — dedicated onboarding call and fast-track responses</div></div>
+      <div class="price-feature"><span class="price-check">✓</span><div>Bulk driver onboarding assistance</div></div>
+
+      <button class="price-btn price-btn-ghost" onclick="document.getElementById('signup').scrollIntoView({behavior:'smooth'})">Lock My Founding Rate</button>
+      <div class="trial-note">Founding member pricing · Locked for life</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── WAITLIST ── -->
+<section class="signup-section" id="signup">
+  <div class="signup-inner">
+    <div class="section-label" style="justify-content:center">Founding Members</div>
+    <h2 class="section-title">Fire your dispatcher.<br><span class="accent">Keep the money.</span></h2>
+    <p class="section-sub" style="margin:12px auto 0;text-align:center">Founding member spots are limited. Join the waitlist today — lock your rate permanently before we open to the public.</p>
+
+    <form class="signup-form" id="signup-form" onsubmit="handleSignup(event)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <input class="form-input" type="text" placeholder="First Name" required id="sf-first" />
+        <input class="form-input" type="text" placeholder="Last Name" required id="sf-last" />
+      </div>
+      <input class="form-input" type="email" placeholder="Email Address" required id="sf-email" />
+      <input class="form-input" type="tel" placeholder="Phone Number" id="sf-phone" />
+      <select class="form-select" id="sf-trucks" required>
+        <option value="" disabled selected>How many trucks do you run?</option>
+        <option>1 truck (solo operator)</option>
+        <option>2–3 trucks</option>
+        <option>4–9 trucks</option>
+        <option>10+ trucks</option>
+      </select>
+      <select class="form-select" id="sf-state" required>
+        <option value="" disabled selected>What state do you operate out of?</option>
+        <option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option>
+        <option>CO</option><option>CT</option><option>DE</option><option>FL</option><option>GA</option>
+        <option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option>
+        <option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option>
+        <option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option>
+        <option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option>
+        <option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option>
+        <option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option>
+        <option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option>
+        <option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option>
+      </select>
+      <select class="form-select" id="sf-cd">
+      <option value="" disabled selected>Are you a Central Dispatch member?</option>
+      <option>Yes — I have an active Central Dispatch subscription</option>
+      <option>No — I'm not a member yet</option>
+      <option>Not sure</option>
+      </select>
+      <button type="submit" class="signup-submit">🦅 Join the Waitlist — Lock My Rate</button>
+      <p class="form-disclaimer">No payment required now. When we launch, waitlist members get first access and their founding rate locked permanently.</p>
+    </form>
+
+    <div class="success-msg" id="success-msg">
+      🎉 You're on the list! We'll reach out before launch with your founding member access and locked rate. Keep your trailer full until then.
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ── -->
+<section class="section" id="faq" style="padding-bottom:60px">
+  <div class="section-label">FAQ</div>
+  <h2 class="section-title">Questions drivers<br>actually ask.</h2>
+  <p class="section-sub">No fluff. Straight answers about how RigHawkAI works and what to expect.</p>
+
+  <div class="faq-2col" style="margin-top:56px">
+    <div style="display:flex;flex-direction:column;gap:12px">
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">
+          How does Ravyn know which loads to call me about?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          Ravyn uses a scoring engine that evaluates every available load across four dimensions: <strong>equipment match</strong> (does it fit your truck?), <strong>rate per mile</strong> (how it compares to market average), <strong>mileage</strong> (optimized for your preferred range), and <strong>lane preference</strong> (bonus points for routes you've told us you like). Only loads scoring 85 or above trigger a call — so when your phone rings, it's always a legitimate opportunity worth your attention.
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">
+          What if I don't want calls late at night or early in the morning?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          Available on <strong>Growth and Fleet plans</strong>, you can set custom quiet hours directly in the app — for example, 10 PM to 7 AM. Ravyn will never call during those hours, period. You can also flip on a <strong>Do Not Disturb</strong> toggle at any time to pause calls instantly, then turn it back off when you're ready to roll again. Your sleep is protected.
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">
+          Will Ravyn keep calling me even if I already have a load?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          No. Ravyn checks whether you have an active booked load before every call. If you're already on a run, she won't call — she knows you're busy. The moment your load is marked complete, she's back on the hunt. This is one of several built-in guardrails designed to make sure every call she makes is relevant and timely.
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">
+          What if I miss Ravyn's call?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          No problem. The load stays visible in your <strong>Loads screen</strong> inside the app, where you can review it, see the full details, and book it yourself. You'll also receive a push notification alongside the call so you always have a record. Ravyn won't call back about the same load, but if a similar load appears on a different lane, she'll call about that one separately.
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">
+          How is RigHawkAI different from DAT or a load board?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          Load boards like DAT require you to log in, search manually, scroll through dozens of listings, and negotiate yourself — every single time. <strong>RigHawkAI does all of that for you automatically.</strong> The AI scans continuously, scores every load before you see it, filters out anything that doesn't match your equipment or RPM requirements, and then has Ravyn call your phone when something good appears. You don't lift a finger until a great load is already in front of you.
+        </div>
+      </div>
+
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">
+          How does founding member pricing work?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          Founding members join the waitlist before launch and lock in a permanently discounted rate — <strong>Starter at $147/mo, Pro at $197/mo, Fleet at $347/mo</strong>. That rate is yours forever, regardless of future price increases. When we launch, waitlist members get first access. No payment is required to join the waitlist — you'll be prompted to add a payment method only when we're ready to activate your account. Founding member spots are limited and close when we hit our cap.
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">
+          Can I upgrade or change my plan later?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          Yes, anytime. You can upgrade from Starter to Growth or Growth to Fleet at any point from your profile settings. Upgrades are prorated — you only pay the difference for the remaining days in your billing cycle. Downgrades take effect at your next renewal date so you keep your current features until then.
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">
+          What equipment types does RigHawkAI support?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          Currently supported: <strong>Dry Van, Flatbed, Refrigerated (Reefer), Car Hauler, and Step Deck.</strong> Car Hauler drivers can also specify their vehicle capacity during onboarding so Ravyn only surfaces loads that match how many cars you can move. More equipment types are being added — if yours isn't listed, let us know at signup and we'll prioritize it.
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">
+          I have more than one truck. Which plan do I need?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          The <strong>Fleet plan at $999/month</strong> supports up to 20 trucks. Each driver gets their own Ravyn configuration — separate equipment type, preferred lanes, quiet hours, and call phone number. You get a fleet-wide analytics dashboard so you can track earnings, load acceptance rates, and average RPM across your entire operation in one place. It's the full dispatcher replacement for growing carriers.
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">
+          Is my data and personal information secure?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          Yes. RigHawkAI is built on <strong>enterprise-grade infrastructure</strong> with encrypted data storage, secure authentication, and role-based access controls. Your phone number, earnings data, documents, and personal information are never sold or shared with third parties. Your call history and load data are private to your account only.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="logo" style="font-size:16px">
+      RigHawk<span class="logo-badge" style="font-size:7px">AI</span>
+    </div>
+    <div class="footer-copy">© 2025 RigHawkAI. All rights reserved.</div>
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── Phone screen switcher ──
+function switchScreen(name, tabEl) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.phone-tab').forEach(t => t.classList.remove('active'));
+  const screen = document.getElementById('screen-' + name);
+  if (screen) screen.classList.add('active');
+  if (tabEl) tabEl.classList.add('active');
+}
+
+// ── Demo Call — Real Audio ──
+const TRANSCRIPT_LINES = [
+  "Hey Micheal, it's Ravyn.",
+  "I found a load scoring ninety-four points.",
+  "Chicago, Illinois to Atlanta, Georgia.",
+  "Four vehicles, seven hundred sixteen miles, paying twelve hundred dollars.",
+  "That's one dollar and sixty-eight cents per mile.",
+  "Pickup is this Thursday with Coyote Logistics.",
+  "Want me to book it?"
+];
+
+const ravynAudio = new Audio('ravyn-demo-car-hauler.mp3') ;
+let transcriptInterval = null;
+let progressInterval = null;
+
+ravynAudio.addEventListener('ended', () => finishCall());
+ravynAudio.addEventListener('error', () => {
+  document.getElementById('transcript-placeholder').textContent =
+    '⚠ Audio file not found. Make sure ravyn-demo.mp3 is in the same folder as this HTML file.';
+});
+
+function toggleCall() {
+  if (!ravynAudio.paused) {
+    ravynAudio.pause();
+    clearInterval(progressInterval);
+    clearInterval(transcriptInterval);
+    document.getElementById('play-btn').textContent = '▶';
+    document.getElementById('play-btn').classList.remove('playing');
+    document.getElementById('transcript-cursor').style.display = 'none';
+  } else {
+    startCall();
+  }
+}
+
+function startCall() {
+  const btn = document.getElementById('play-btn');
+  const placeholder = document.getElementById('transcript-placeholder');
+  const cursor = document.getElementById('transcript-cursor');
+  const textEl = document.getElementById('transcript-text');
+
+  // Reset if replaying
+  if (ravynAudio.ended || ravynAudio.currentTime === 0) {
+    ravynAudio.currentTime = 0;
+    textEl.textContent = '';
+  }
+
+  placeholder.style.display = 'none';
+  cursor.style.display = 'inline-block';
+  btn.textContent = '⏸';
+  btn.classList.add('playing');
+
+  ravynAudio.play();
+
+  // Sync transcript to audio duration
+  ravynAudio.addEventListener('loadedmetadata', syncTranscript, { once: true });
+  if (ravynAudio.duration) syncTranscript();
+
+  // Progress bar tied to real audio time
+  clearInterval(progressInterval);
+  progressInterval = setInterval(() => {
+    if (ravynAudio.paused || !ravynAudio.duration) return;
+    const pct = (ravynAudio.currentTime / ravynAudio.duration) * 100;
+    document.getElementById('call-progress').style.width = pct + '%';
+    const cur = formatTime(ravynAudio.currentTime);
+    const dur = formatTime(ravynAudio.duration);
+    document.getElementById('call-timer').textContent = `${cur} / ${dur}`;
+  }, 200);
+}
+
+function syncTranscript() {
+  const textEl = document.getElementById('transcript-text');
+  const dur = ravynAudio.duration || 28;
+  const charsPerSec = TRANSCRIPT_LINES.join(' ').length / dur;
+  let totalChars = 0;
+
+  clearInterval(transcriptInterval);
+  transcriptInterval = setInterval(() => {
+    if (ravynAudio.paused) return;
+    const targetChars = Math.floor(ravynAudio.currentTime * charsPerSec);
+    const fullText = TRANSCRIPT_LINES.join(' ');
+    if (targetChars <= fullText.length) {
+      textEl.textContent = fullText.substring(0, targetChars);
+    }
+  }, 80);
+}
+
+function finishCall() {
+  clearInterval(progressInterval);
+  clearInterval(transcriptInterval);
+  const btn = document.getElementById('play-btn');
+  const cursor = document.getElementById('transcript-cursor');
+  const textEl = document.getElementById('transcript-text');
+  btn.textContent = '↺';
+  btn.classList.remove('playing');
+  cursor.style.display = 'none';
+  textEl.textContent = TRANSCRIPT_LINES.join(' ');
+  document.getElementById('call-progress').style.width = '100%';
+  if (ravynAudio.duration) {
+    document.getElementById('call-timer').textContent =
+      `${formatTime(ravynAudio.duration)} / ${formatTime(ravynAudio.duration)}`;
+  }
+}
+
+function formatTime(secs) {
+  const m = Math.floor(secs / 60);
+  const s = Math.floor(secs % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+// ── Signup form ──
+async function handleSignup(event) {
+  event.preventDefault();
+
+  const first = document.getElementById('sf-first').value.trim();
+  const last = document.getElementById('sf-last').value.trim();
+  const email = document.getElementById('sf-email').value.trim();
+  const phone = document.getElementById('sf-phone').value.trim();
+  const trucks = document.getElementById('sf-trucks').value;
+  const state = document.getElementById('sf-state').value;
+  const cd = document.getElementById('sf-cd').value;
+
+  if (!first || !last || !email || !trucks || !state || !cd) {
+    alert('Please fill out all fields to join the waitlist.');
+    return;
+  }
+
+  const payload = {
+    api_key: '_0ztOeHRMW7r-ZsCSJx5eA',
+    first_name: first,
+    email: email,
+    fields: {
+      last_name: last,
+      phone: phone,
+      truck_count: trucks,
+      state: state,
+      central_dispatch_member: cd
+    }
+  };
+
+  try {
+    const response = await fetch('https://api.convertkit.com/v3/forms/1977209/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+
+    if (data.subscription) {
+      document.getElementById('signup-form').style.display = 'none';
+      document.getElementById('success-msg').style.display = 'block';
+    } else {
+      alert('Something went wrong. Please try again.');
+    }
+  } catch (error) {
+    alert('Something went wrong. Please try again.');
+  }
+}
+
+// ── FAQ accordion ──
+function toggleFaq(item) {
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+// ── Intersection Observer for subtle entrance animations ──
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.feature-card, .price-card, .step').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+  observer.observe(el);
+});
+</script>
+
+</body>
+</html>

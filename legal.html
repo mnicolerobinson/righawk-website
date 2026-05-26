@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Legal — RigHawk AI</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0A0E17;
+    --card: #111827;
+    --cardAlt: #161D2E;
+    --accent: #F59E0B;
+    --accentDim: #B45309;
+    --accentLight: #FCD34D;
+    --accentBg: rgba(245,158,11,0.1);
+    --accentBorder: rgba(245,158,11,0.25);
+    --green: #10B981;
+    --text: #F9FAFB;
+    --muted: #9CA3AF;
+    --dim: #6B7280;
+    --border: #1F2937;
+    --borderLight: #374151;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ── Nav ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,14,23,0.92); backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 20px; font-weight: 900; letter-spacing: -0.04em;
+    color: var(--accent); text-decoration: none;
+  }
+  .logo-badge {
+    background: var(--accent); color: #000;
+    font-size: 8px; font-weight: 800; letter-spacing: 0.1em;
+    padding: 3px 6px; border-radius: 4px; text-transform: uppercase;
+  }
+  .nav-back {
+    font-size: 14px; color: var(--muted); font-weight: 500;
+    transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--text); text-decoration: none; }
+
+  /* ── Header ── */
+  .legal-header {
+    padding: 64px 24px 48px;
+    border-bottom: 1px solid var(--border);
+    position: relative; overflow: hidden;
+  }
+  .legal-header-bg {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 70% 80% at 80% 50%, rgba(245,158,11,0.05) 0%, transparent 60%);
+  }
+  .legal-header-inner { max-width: 860px; margin: 0 auto; position: relative; }
+  .legal-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 16px;
+  }
+  .legal-title {
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 900; letter-spacing: -0.03em; line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .legal-title span { color: var(--accent); }
+  .legal-meta {
+    font-size: 14px; color: var(--dim); margin-bottom: 32px;
+  }
+
+  /* ── Tabs ── */
+  .tab-bar {
+    display: flex; gap: 4px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 4px; width: fit-content;
+  }
+  .tab-btn {
+    padding: 10px 24px; border-radius: 9px; border: none;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s; color: var(--muted); background: transparent;
+  }
+  .tab-btn.active {
+    background: var(--accent); color: #000;
+  }
+  .tab-btn:not(.active):hover { color: var(--text); }
+
+  /* ── Content ── */
+  .legal-body {
+    max-width: 860px; margin: 0 auto;
+    padding: 56px 24px 100px;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .legal-section { margin-bottom: 48px; }
+  .legal-section:last-child { margin-bottom: 0; }
+
+  h2.ls-title {
+    font-size: 22px; font-weight: 800; color: var(--text);
+    margin-bottom: 16px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  h2.ls-title::before {
+    content: ''; width: 4px; height: 22px; border-radius: 2px;
+    background: var(--accent); flex-shrink: 0;
+  }
+  h3.ls-sub {
+    font-size: 16px; font-weight: 700; color: var(--text);
+    margin: 24px 0 10px;
+  }
+  p.ls-body {
+    font-size: 15px; color: var(--muted); line-height: 1.8;
+    margin-bottom: 14px;
+  }
+  ul.ls-list {
+    list-style: none; margin: 0 0 14px; padding: 0;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  ul.ls-list li {
+    font-size: 15px; color: var(--muted); line-height: 1.7;
+    padding-left: 20px; position: relative;
+  }
+  ul.ls-list li::before {
+    content: '—'; position: absolute; left: 0;
+    color: var(--accent); font-weight: 700;
+  }
+
+  .callout {
+    background: var(--accentBg); border: 1px solid var(--accentBorder);
+    border-radius: 12px; padding: 20px 24px; margin: 24px 0;
+  }
+  .callout p { font-size: 14px; color: var(--text); line-height: 1.7; margin: 0; }
+  .callout strong { color: var(--accent); }
+
+  .contact-box {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 28px; margin-top: 48px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .contact-box-title {
+    font-size: 16px; font-weight: 800; margin-bottom: 4px;
+  }
+  .contact-box p { font-size: 14px; color: var(--muted); }
+  .contact-box a { color: var(--accent); }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--cardAlt); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px 24px; margin-bottom: 48px;
+  }
+  .toc-title {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 14px;
+  }
+  .toc-links {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px;
+  }
+  .toc-links a {
+    font-size: 13px; color: var(--muted); transition: color 0.2s;
+  }
+  .toc-links a:hover { color: var(--accent); text-decoration: none; }
+
+  /* ── Footer ── */
+  footer {
+    border-top: 1px solid var(--border); padding: 32px 24px;
+  }
+  .footer-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 16px;
+  }
+  .footer-copy { font-size: 13px; color: var(--dim); }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { font-size: 13px; color: var(--dim); transition: color 0.2s; }
+  .footer-links a:hover { color: var(--muted); text-decoration: none; }
+
+  @media (max-width: 640px) {
+    .toc-links { grid-template-columns: 1fr; }
+    .tab-btn { padding: 10px 16px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">RigHawk<span class="logo-badge">AI</span></a>
+    <a href="index.html" class="nav-back">← Back to RigHawkAI</a>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<div class="legal-header">
+  <div class="legal-header-bg"></div>
+  <div class="legal-header-inner">
+    <div class="legal-eyebrow">⚖️ &nbsp;Legal</div>
+    <h1 class="legal-title">Privacy Policy &<br><span>Terms of Use</span></h1>
+    <p class="legal-meta">Last updated: May 2026 &nbsp;·&nbsp; RigHawk AI, a product of Clairen Haus LLC</p>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('privacy', this)">Privacy Policy</button>
+      <button class="tab-btn" onclick="switchTab('terms', this)">Terms of Use</button>
+    </div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="legal-body">
+
+  <!-- ══ PRIVACY POLICY ══ -->
+  <div class="tab-panel active" id="panel-privacy">
+
+    <div class="toc">
+      <div class="toc-title">In this policy</div>
+      <div class="toc-links">
+        <a href="#p1">1. Information We Collect</a>
+        <a href="#p2">2. How We Use Your Information</a>
+        <a href="#p3">3. How We Share Your Information</a>
+        <a href="#p4">4. Data Retention</a>
+        <a href="#p5">5. Your Rights & Choices</a>
+        <a href="#p6">6. Security</a>
+        <a href="#p7">7. Third-Party Services</a>
+        <a href="#p8">8. Children's Privacy</a>
+        <a href="#p9">9. Changes to This Policy</a>
+        <a href="#p10">10. Contact Us</a>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>Plain-language summary:</strong> RigHawk AI collects information you give us and information generated through your use of the platform — like load activity and Ravyn call history — to operate the service and make it better. We do not sell your personal information. Ever.</p>
+    </div>
+
+    <div class="legal-section" id="p1">
+      <h2 class="ls-title">1. Information We Collect</h2>
+
+      <h3 class="ls-sub">Information You Provide</h3>
+      <p class="ls-body">When you create an account, join the waitlist, or use RigHawk AI, you may provide us with:</p>
+      <ul class="ls-list">
+        <li>Name, email address, and phone number</li>
+        <li>Operating state and fleet size</li>
+        <li>Equipment type, preferred lanes, and minimum rate per mile</li>
+        <li>Carrier credentials used to connect to Central Dispatch or other integrated platforms</li>
+        <li>Payment information (processed by our third-party payment processor — we do not store full card numbers)</li>
+        <li>Documents you upload, including CDL, insurance certificates, and bills of lading</li>
+      </ul>
+
+      <h3 class="ls-sub">Information Generated by Your Use</h3>
+      <p class="ls-body">When you use the platform, we collect:</p>
+      <ul class="ls-list">
+        <li>Load search activity, load scores, and booking decisions</li>
+        <li>Ravyn call history, including call outcomes (booked, passed, missed)</li>
+        <li>Earnings data and invoice records you create in the platform</li>
+        <li>App usage data including screens viewed, features used, and session duration</li>
+        <li>Device type, operating system, and IP address</li>
+      </ul>
+
+      <h3 class="ls-sub">Information from Third-Party Integrations</h3>
+      <p class="ls-body">If you connect a third-party platform such as Central Dispatch, we receive data from that platform on your behalf — including load listings, dispatch records, and marketplace activity — solely to operate the RigHawk AI service for you. This data is governed by both this Privacy Policy and the terms of the connected platform.</p>
+    </div>
+
+    <div class="legal-section" id="p2">
+      <h2 class="ls-title">2. How We Use Your Information</h2>
+      <p class="ls-body">We use the information we collect to:</p>
+      <ul class="ls-list">
+        <li>Create and manage your account</li>
+        <li>Operate Ravyn — your AI dispatch agent — including scanning for loads, scoring them, and placing outbound calls on your behalf</li>
+        <li>Match load opportunities to your preferences and generate notifications</li>
+        <li>Process payments and manage your subscription</li>
+        <li>Generate invoices and earnings reports within the platform</li>
+        <li>Improve load scoring accuracy and Ravyn's performance over time</li>
+        <li>Send you service-related communications, including account updates and product announcements</li>
+        <li>Respond to your support requests</li>
+        <li>Comply with applicable laws and legal obligations</li>
+      </ul>
+      <p class="ls-body">We do not use your information to train general-purpose AI models or to profile you for advertising purposes.</p>
+    </div>
+
+    <div class="legal-section" id="p3">
+      <h2 class="ls-title">3. How We Share Your Information</h2>
+      <p class="ls-body">We do not sell your personal information. We share your information only in the following circumstances:</p>
+
+      <h3 class="ls-sub">Service Providers</h3>
+      <p class="ls-body">We share information with third-party vendors who help us operate the platform, including payment processors, telephony providers (for Ravyn voice calls), cloud storage providers, and analytics tools. These vendors are contractually required to use your data only to provide services to us.</p>
+
+      <h3 class="ls-sub">Integrated Platforms</h3>
+      <p class="ls-body">When you authorize RigHawk AI to connect to a third-party platform like Central Dispatch, we act on your behalf to retrieve and submit data to that platform. We share only the data required to complete the actions you've authorized.</p>
+
+      <h3 class="ls-sub">Legal Requirements</h3>
+      <p class="ls-body">We may disclose your information if required by law, court order, or government authority, or if we believe disclosure is necessary to protect the rights, property, or safety of RigHawk AI, our users, or the public.</p>
+
+      <h3 class="ls-sub">Business Transfers</h3>
+      <p class="ls-body">If Clairen Haus LLC is involved in a merger, acquisition, or sale of assets, your information may be transferred as part of that transaction. We will notify you before your information becomes subject to a different privacy policy.</p>
+    </div>
+
+    <div class="legal-section" id="p4">
+      <h2 class="ls-title">4. Data Retention</h2>
+      <p class="ls-body">We retain your account information and usage data for as long as your account is active. If you cancel your account, we will delete or anonymize your personal information within 90 days, except where we are required to retain it for legal or tax compliance purposes.</p>
+      <p class="ls-body">Ravyn call recordings, if any, are retained for 30 days and then permanently deleted unless you explicitly request otherwise.</p>
+    </div>
+
+    <div class="legal-section" id="p5">
+      <h2 class="ls-title">5. Your Rights & Choices</h2>
+      <p class="ls-body">You have the right to:</p>
+      <ul class="ls-list">
+        <li><strong style="color:var(--text)">Access</strong> — request a copy of the personal information we hold about you</li>
+        <li><strong style="color:var(--text)">Correct</strong> — update or correct inaccurate information in your account</li>
+        <li><strong style="color:var(--text)">Delete</strong> — request deletion of your account and associated personal data</li>
+        <li><strong style="color:var(--text)">Opt out of marketing</strong> — unsubscribe from promotional emails at any time using the link in any email we send</li>
+        <li><strong style="color:var(--text)">Data portability</strong> — request a machine-readable export of your data</li>
+      </ul>
+      <p class="ls-body">To exercise any of these rights, contact us at <a href="mailto:privacy@righawkai.com">privacy@righawkai.com</a>. We will respond within 30 days.</p>
+    </div>
+
+    <div class="legal-section" id="p6">
+      <h2 class="ls-title">6. Security</h2>
+      <p class="ls-body">We implement industry-standard security measures to protect your information, including encryption in transit and at rest, access controls, and regular security reviews. However, no method of transmission over the internet is 100% secure. We encourage you to use a strong, unique password for your account and to notify us immediately at <a href="mailto:security@righawkai.com">security@righawkai.com</a> if you suspect unauthorized access.</p>
+    </div>
+
+    <div class="legal-section" id="p7">
+      <h2 class="ls-title">7. Third-Party Services</h2>
+      <p class="ls-body">RigHawk AI integrates with third-party platforms including Central Dispatch (Cox Automotive). Your use of those platforms is governed by their respective terms of service and privacy policies. We are not responsible for the privacy practices of third-party platforms.</p>
+      <p class="ls-body">We may use third-party analytics tools to understand how users interact with our platform. These tools may collect anonymized usage data subject to their own privacy policies.</p>
+    </div>
+
+    <div class="legal-section" id="p8">
+      <h2 class="ls-title">8. Children's Privacy</h2>
+      <p class="ls-body">RigHawk AI is not directed at individuals under 18 years of age. We do not knowingly collect personal information from anyone under 18. If you believe we have inadvertently collected such information, please contact us and we will delete it promptly.</p>
+    </div>
+
+    <div class="legal-section" id="p9">
+      <h2 class="ls-title">9. Changes to This Policy</h2>
+      <p class="ls-body">We may update this Privacy Policy from time to time. When we do, we will update the "Last updated" date at the top of this page and, for material changes, notify you by email or in-app notification. Your continued use of the platform after the effective date of any changes constitutes your acceptance of the updated policy.</p>
+    </div>
+
+    <div class="legal-section" id="p10">
+      <h2 class="ls-title">10. Contact Us</h2>
+      <p class="ls-body">If you have questions about this Privacy Policy or how we handle your data, contact us at:</p>
+      <div class="contact-box">
+        <div class="contact-box-title">Clairen Haus LLC — Privacy</div>
+        <p>Email: <a href="mailto:privacy@righawkai.com">privacy@righawkai.com</a></p>
+        <p>Product: RigHawk AI</p>
+        <p>Atlanta, Georgia</p>
+      </div>
+    </div>
+
+  </div><!-- /panel-privacy -->
+
+
+  <!-- ══ TERMS OF USE ══ -->
+  <div class="tab-panel" id="panel-terms">
+
+    <div class="toc">
+      <div class="toc-title">In these terms</div>
+      <div class="toc-links">
+        <a href="#t1">1. Acceptance of Terms</a>
+        <a href="#t2">2. Eligibility</a>
+        <a href="#t3">3. Your Account</a>
+        <a href="#t4">4. The Service</a>
+        <a href="#t5">5. Ravyn — AI Dispatch Agent</a>
+        <a href="#t6">6. Third-Party Integrations</a>
+        <a href="#t7">7. Subscription & Billing</a>
+        <a href="#t8">8. Acceptable Use</a>
+        <a href="#t9">9. Intellectual Property</a>
+        <a href="#t10">10. Disclaimers</a>
+        <a href="#t11">11. Limitation of Liability</a>
+        <a href="#t12">12. Indemnification</a>
+        <a href="#t13">13. Termination</a>
+        <a href="#t14">14. Governing Law</a>
+        <a href="#t15">15. Changes to These Terms</a>
+        <a href="#t16">16. Contact</a>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>Plain-language summary:</strong> By using RigHawk AI you agree to these terms. Use the platform responsibly, pay your subscription on time, and understand that Ravyn is an AI tool — final booking decisions are yours. We're not liable for load outcomes or third-party platform behavior.</p>
+    </div>
+
+    <div class="legal-section" id="t1">
+      <h2 class="ls-title">1. Acceptance of Terms</h2>
+      <p class="ls-body">By accessing or using RigHawk AI (the "Service"), you agree to be bound by these Terms of Use ("Terms") and our Privacy Policy. If you do not agree to these Terms, do not use the Service.</p>
+      <p class="ls-body">These Terms constitute a legally binding agreement between you and Clairen Haus LLC ("we," "us," or "our"), the operator of RigHawk AI.</p>
+    </div>
+
+    <div class="legal-section" id="t2">
+      <h2 class="ls-title">2. Eligibility</h2>
+      <p class="ls-body">You must be at least 18 years of age to use the Service. By using RigHawk AI, you represent that you are at least 18 years old and have the legal authority to enter into this agreement.</p>
+      <p class="ls-body">The Service is intended for use by owner-operators, independent carriers, and fleet operators engaged in commercial freight or vehicle transport in the United States. You are responsible for ensuring your use of the Service complies with all applicable laws and regulations, including FMCSA requirements.</p>
+    </div>
+
+    <div class="legal-section" id="t3">
+      <h2 class="ls-title">3. Your Account</h2>
+      <p class="ls-body">You are responsible for maintaining the confidentiality of your account credentials and for all activity that occurs under your account. You agree to:</p>
+      <ul class="ls-list">
+        <li>Provide accurate and complete information when creating your account</li>
+        <li>Keep your account information current</li>
+        <li>Notify us immediately at <a href="mailto:support@righawkai.com">support@righawkai.com</a> if you suspect unauthorized access to your account</li>
+        <li>Not share your login credentials with any third party</li>
+      </ul>
+      <p class="ls-body">We are not liable for any loss or damage arising from your failure to protect your account credentials.</p>
+    </div>
+
+    <div class="legal-section" id="t4">
+      <h2 class="ls-title">4. The Service</h2>
+      <p class="ls-body">RigHawk AI provides an AI-powered dispatch and load management platform designed to help independent carriers and owner-operators find, evaluate, and book freight and vehicle transport loads. The Service includes AI load discovery, load scoring, voice-based load notifications through our AI dispatch agent Ravyn, financial tracking tools, and document storage.</p>
+      <p class="ls-body">The Service is provided as a tool to assist your business operations. <strong style="color:var(--text)">All final decisions regarding load acceptance, pricing negotiations, and business relationships remain entirely your responsibility.</strong> RigHawk AI does not act as a freight broker, transportation intermediary, or licensed dispatcher.</p>
+    </div>
+
+    <div class="legal-section" id="t5">
+      <h2 class="ls-title">5. Ravyn — AI Dispatch Agent</h2>
+      <p class="ls-body">Ravyn is an AI-powered voice agent that contacts you by phone to deliver load information when a qualifying load is identified. By using the Service, you expressly consent to receiving outbound calls from Ravyn to the phone number associated with your account.</p>
+
+      <h3 class="ls-sub">How Ravyn Works</h3>
+      <ul class="ls-list">
+        <li>Ravyn calls your registered phone number when a load meets your scoring threshold</li>
+        <li>If you do not answer, a push notification is sent to the RigHawk AI mobile app</li>
+        <li>You accept or decline each load verbally or through the app — Ravyn does not book loads without your explicit approval</li>
+        <li>Ravyn operates within the guardrails you configure, including quiet hours and Do Not Disturb settings</li>
+      </ul>
+
+      <h3 class="ls-sub">Limitations</h3>
+      <p class="ls-body">Ravyn is an AI system. While we work to ensure accuracy, Ravyn may occasionally provide incomplete or imperfect load information. You are responsible for independently verifying load details before accepting any load. We are not liable for losses arising from inaccurate load information delivered by Ravyn.</p>
+      <p class="ls-body">Ravyn operates based on data available at the time of scanning. Load availability, rates, and pickup windows on third-party platforms may change between the time Ravyn identifies a load and the time you attempt to book it.</p>
+    </div>
+
+    <div class="legal-section" id="t6">
+      <h2 class="ls-title">6. Third-Party Integrations</h2>
+      <p class="ls-body">RigHawk AI integrates with third-party platforms including Central Dispatch (operated by Cox Automotive / Dealertrack). Your use of those platforms is governed by their own terms of service and you are responsible for maintaining valid subscriptions and complying with their terms.</p>
+      <p class="ls-body">By connecting a third-party account to RigHawk AI, you authorize us to access and act on your behalf within that platform solely to deliver the features described in the Service. You must not use RigHawk AI in any way that violates the terms of service of any connected third-party platform.</p>
+      <p class="ls-body">We are not affiliated with, endorsed by, or in any way officially connected to Central Dispatch or Cox Automotive, except through our status as an authorized software integration partner.</p>
+    </div>
+
+    <div class="legal-section" id="t7">
+      <h2 class="ls-title">7. Subscription & Billing</h2>
+
+      <h3 class="ls-sub">Plans and Fees</h3>
+      <p class="ls-body">RigHawk AI is offered on a monthly subscription basis. Current plan pricing is displayed on our website and in the app. Founding member pricing, where applicable, is locked for the life of your account as described at the time of enrollment.</p>
+
+      <h3 class="ls-sub">Billing</h3>
+      <p class="ls-body">Subscriptions are billed monthly in advance. By providing a payment method, you authorize us to charge the applicable subscription fee on a recurring monthly basis until you cancel.</p>
+
+      <h3 class="ls-sub">Cancellation</h3>
+      <p class="ls-body">You may cancel your subscription at any time through your account settings or by contacting us at <a href="mailto:support@righawkai.com">support@righawkai.com</a>. Cancellation takes effect at the end of your current billing period. We do not offer refunds for unused portions of a billing period.</p>
+
+      <h3 class="ls-sub">Price Changes</h3>
+      <p class="ls-body">We may change subscription pricing with 30 days' notice. Founding member rates are exempt from standard price increases for as long as your account remains active and in good standing.</p>
+    </div>
+
+    <div class="legal-section" id="t8">
+      <h2 class="ls-title">8. Acceptable Use</h2>
+      <p class="ls-body">You agree not to use the Service to:</p>
+      <ul class="ls-list">
+        <li>Violate any applicable law or regulation, including FMCSA rules and carrier licensing requirements</li>
+        <li>Submit false, misleading, or fraudulent information</li>
+        <li>Attempt to reverse engineer, decompile, or extract the source code of the platform</li>
+        <li>Interfere with or disrupt the integrity or performance of the Service</li>
+        <li>Access the Service through automated means not authorized by us</li>
+        <li>Use the Service in any way that violates the terms of service of any connected third-party platform</li>
+        <li>Share your account access with individuals outside your authorized organization</li>
+        <li>Use the Service to engage in fraudulent load booking or broker relationships</li>
+      </ul>
+      <p class="ls-body">Violation of this section may result in immediate suspension or termination of your account without refund.</p>
+    </div>
+
+    <div class="legal-section" id="t9">
+      <h2 class="ls-title">9. Intellectual Property</h2>
+      <p class="ls-body">All content, features, technology, and functionality of the RigHawk AI platform — including but not limited to the Ravyn AI agent, load scoring algorithms, software, design, and trademarks — are owned by Clairen Haus LLC and are protected by applicable intellectual property laws.</p>
+      <p class="ls-body">We grant you a limited, non-exclusive, non-transferable license to access and use the Service for your own business operations during your subscription period. This license does not include the right to copy, modify, distribute, or create derivative works from any part of the Service.</p>
+      <p class="ls-body">You retain ownership of all data you upload to the platform, including documents and business records. By uploading data, you grant us a limited license to store and process it solely to provide the Service to you.</p>
+    </div>
+
+    <div class="legal-section" id="t10">
+      <h2 class="ls-title">10. Disclaimers</h2>
+      <p class="ls-body">THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED. CLAIREN HAUS LLC DOES NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, ERROR-FREE, OR FREE OF HARMFUL COMPONENTS.</p>
+      <p class="ls-body">WE DO NOT GUARANTEE THAT LOAD MATCHES IDENTIFIED BY THE SERVICE WILL BE AVAILABLE, ACCURATELY PRICED, OR SUITABLE FOR YOUR SPECIFIC OPERATION. ALL LOAD DECISIONS ARE MADE AT YOUR OWN RISK.</p>
+      <p class="ls-body">RAVYN IS AN AI SYSTEM AND MAY MAKE ERRORS. WE ARE NOT RESPONSIBLE FOR BUSINESS OUTCOMES RESULTING FROM INFORMATION PROVIDED BY RAVYN.</p>
+    </div>
+
+    <div class="legal-section" id="t11">
+      <h2 class="ls-title">11. Limitation of Liability</h2>
+      <p class="ls-body">TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, CLAIREN HAUS LLC SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO LOST PROFITS, LOST LOADS, LOST REVENUE, OR BUSINESS INTERRUPTION, ARISING OUT OF OR RELATED TO YOUR USE OF THE SERVICE.</p>
+      <p class="ls-body">OUR TOTAL LIABILITY TO YOU FOR ANY CLAIMS ARISING UNDER THESE TERMS SHALL NOT EXCEED THE AMOUNT YOU PAID TO US IN THE THREE MONTHS PRECEDING THE CLAIM.</p>
+    </div>
+
+    <div class="legal-section" id="t12">
+      <h2 class="ls-title">12. Indemnification</h2>
+      <p class="ls-body">You agree to indemnify, defend, and hold harmless Clairen Haus LLC and its officers, employees, and agents from any claims, damages, losses, or expenses (including reasonable attorneys' fees) arising out of or related to: (a) your use of the Service; (b) your violation of these Terms; (c) your violation of any third-party rights or applicable law; or (d) your interactions with any load broker, shipper, or carrier facilitated through the Service.</p>
+    </div>
+
+    <div class="legal-section" id="t13">
+      <h2 class="ls-title">13. Termination</h2>
+      <p class="ls-body">We may suspend or terminate your access to the Service at any time, with or without notice, for violation of these Terms, non-payment, or conduct that we determine to be harmful to other users or the platform.</p>
+      <p class="ls-body">You may terminate your account at any time by canceling your subscription. Upon termination, your right to use the Service ends immediately. Sections 9, 10, 11, 12, and 14 survive termination.</p>
+    </div>
+
+    <div class="legal-section" id="t14">
+      <h2 class="ls-title">14. Governing Law</h2>
+      <p class="ls-body">These Terms are governed by the laws of the State of Georgia, without regard to its conflict of law provisions. Any disputes arising under these Terms shall be resolved exclusively in the state or federal courts located in Fulton County, Georgia, and you consent to personal jurisdiction in those courts.</p>
+    </div>
+
+    <div class="legal-section" id="t15">
+      <h2 class="ls-title">15. Changes to These Terms</h2>
+      <p class="ls-body">We may update these Terms from time to time. When we do, we will update the "Last updated" date at the top of this page. For material changes, we will notify you by email or in-app notification at least 14 days before the changes take effect. Your continued use of the Service after the effective date constitutes your acceptance of the updated Terms.</p>
+    </div>
+
+    <div class="legal-section" id="t16">
+      <h2 class="ls-title">16. Contact</h2>
+      <p class="ls-body">Questions about these Terms? Contact us at:</p>
+      <div class="contact-box">
+        <div class="contact-box-title">Clairen Haus LLC — Legal</div>
+        <p>Email: <a href="mailto:legal@righawkai.com">legal@righawkai.com</a></p>
+        <p>Product: RigHawk AI</p>
+        <p>Atlanta, Georgia</p>
+      </div>
+    </div>
+
+  </div><!-- /panel-terms -->
+
+</div><!-- /legal-body -->
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-copy">© 2026 Clairen Haus LLC. All rights reserved.</div>
+    <div class="footer-links">
+      <a href="#panel-privacy" onclick="switchTab('privacy', document.querySelectorAll('.tab-btn')[0])">Privacy Policy</a>
+      <a href="#panel-terms" onclick="switchTab('terms', document.querySelectorAll('.tab-btn')[1])">Terms of Use</a>
+      <a href="index.html">Home</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
